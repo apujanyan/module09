@@ -50,7 +50,7 @@ resource "azurerm_route_table" "rt" {
   tags = var.tags
 }
 
-resource "azurerm_subnet_route_table_association" "aks_subnet_assoc" {
+resource "azurerm_subnet_route_table_association" "aks_subnet_assocciation" {
   subnet_id      = data.azurerm_subnet.aks.id
   route_table_id = azurerm_route_table.rt.id
 }
