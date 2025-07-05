@@ -6,7 +6,7 @@ module "afw" {
   vnet_name    = local.vnet_name
   subnet_name  = var.subnet_name
   subnet_space = var.subnet_space
-  aks_lb_ip    = var.aks_lb_ip
+  aks_lb_ip    = var.aks_loadbalancer_ip
 
   tags = var.tags
 }
