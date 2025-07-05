@@ -25,6 +25,13 @@ locals {
       destination_addresses = ["*"]
       destination_ports     = ["53"]
       protocols             = ["UDP"]
+    },
+    {
+      name                  = "AllowOutboundHTTP"
+      source_addresses      = ["*"]
+      destination_addresses = ["*"]
+      destination_ports     = ["80", "443"]
+      protocols             = ["TCP"]
     }
   ]
   app_rules = [

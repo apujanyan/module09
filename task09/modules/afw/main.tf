@@ -68,18 +68,6 @@ resource "azurerm_firewall_application_rule_collection" "app_rule" {
   priority            = 100
   action              = "Allow"
 
-  # rule {
-  #   name = "AllowHTTP"
-
-  #   source_addresses = ["*"]
-
-  #   protocol {
-  #     type = "Http"
-  #     port = 80
-  #   }
-  #   target_fqdns = ["www.microsoft.com"]
-  # }
-
   dynamic "rule" {
     for_each = local.app_rules
     content {
@@ -106,14 +94,6 @@ resource "azurerm_firewall_network_rule_collection" "net_rule" {
   priority            = 200
   action              = "Allow"
 
-  # rule {
-  #   name                  = "AllowDNS"
-  #   source_addresses      = ["*"]
-  #   destination_addresses = ["*"]
-  #   destination_ports     = ["53"]
-  #   protocols             = ["UDP"]
-  # }
-
   dynamic "rule" {
     for_each = local.net_rules
     content {
@@ -132,16 +112,6 @@ resource "azurerm_firewall_nat_rule_collection" "nat_rule" {
   resource_group_name = var.rg_name
   priority            = 300
   action              = "Dnat"
-
-  # rule {
-  #   name                  = "NGINXDNAT"
-  #   source_addresses      = ["*"]
-  #   destination_ports     = ["80"]
-  #   destination_addresses = [local.afw_public_ip_address]
-  #   protocols             = ["TCP"]
-  #   translated_address    = var.aks_lb_ip
-  #   translated_port       = "80"
-  # }
 
   dynamic "rule" {
     for_each = local.nat_rules
