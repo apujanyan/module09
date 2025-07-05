@@ -68,16 +68,34 @@ resource "azurerm_firewall_application_rule_collection" "app_rule" {
   priority            = 100
   action              = "Allow"
 
-  rule {
-    name = "AllowHTTP"
+  # rule {
+  #   name = "AllowHTTP"
 
-    source_addresses = ["*"]
+  #   source_addresses = ["*"]
 
-    protocol {
-      type = "Http"
-      port = 80
+  #   protocol {
+  #     type = "Http"
+  #     port = 80
+  #   }
+  #   target_fqdns = ["www.microsoft.com"]
+  # }
+
+  dynamic "rule" {
+    for_each = local.app_rules
+    content {
+      name             = rule.value.name
+      source_addresses = rule.value.source_addresses
+
+      dynamic "protocol" {
+        for_each = rule.value.protocols
+        content {
+          type = protocol.value.type
+          port = protocol.value.port
+        }
+      }
+
+      target_fqdns = rule.value.target_fqdns
     }
-    target_fqdns = ["www.microsoft.com"]
   }
 }
 
@@ -88,12 +106,23 @@ resource "azurerm_firewall_network_rule_collection" "net_rule" {
   priority            = 200
   action              = "Allow"
 
-  rule {
-    name                  = "AllowDNS"
-    source_addresses      = ["*"]
-    destination_addresses = ["*"]
-    destination_ports     = ["53"]
-    protocols             = ["UDP"]
+  # rule {
+  #   name                  = "AllowDNS"
+  #   source_addresses      = ["*"]
+  #   destination_addresses = ["*"]
+  #   destination_ports     = ["53"]
+  #   protocols             = ["UDP"]
+  # }
+
+  dynamic "rule" {
+    for_each = local.net_rules
+    content {
+      name                  = rule.value.name
+      source_addresses      = rule.value.source_addresses
+      destination_addresses = rule.value.destination_addresses
+      destination_ports     = rule.value.destination_ports
+      protocols             = rule.value.protocols
+    }
   }
 }
 
@@ -104,13 +133,28 @@ resource "azurerm_firewall_nat_rule_collection" "nat_rule" {
   priority            = 300
   action              = "Dnat"
 
-  rule {
-    name                  = "NGINXDNAT"
-    source_addresses      = ["*"]
-    destination_ports     = ["80"]
-    destination_addresses = [azurerm_public_ip.firewall_pip.ip_address]
-    protocols             = ["TCP"]
-    translated_address    = var.aks_lb_ip
-    translated_port       = "80"
+  # rule {
+  #   name                  = "NGINXDNAT"
+  #   source_addresses      = ["*"]
+  #   destination_ports     = ["80"]
+  #   destination_addresses = [local.afw_public_ip_address]
+  #   protocols             = ["TCP"]
+  #   translated_address    = var.aks_lb_ip
+  #   translated_port       = "80"
+  # }
+
+  dynamic "rule" {
+    for_each = local.nat_rules
+    content {
+      name                  = rule.value.name
+      source_addresses      = rule.value.source_addresses
+      destination_ports     = rule.value.destination_ports
+      destination_addresses = rule.value.destination_addresses
+      protocols             = rule.value.protocols
+      translated_address    = rule.value.translated_address
+      translated_port       = rule.value.translated_port
+    }
   }
+
+  depends_on = [azurerm_firewall.firewall]
 }
