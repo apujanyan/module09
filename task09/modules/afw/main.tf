@@ -15,6 +15,7 @@ resource "azurerm_public_ip" "firewall_pip" {
   lifecycle {
     create_before_destroy = true
   }
+
   tags = var.tags
 }
 
@@ -104,14 +105,12 @@ resource "azurerm_firewall_nat_rule_collection" "nat_rule" {
   action              = "Dnat"
 
   rule {
-    name              = "NGINXDNAT"
-    source_addresses  = [azurerm_public_ip.firewall_pip.ip_address]
-    destination_ports = ["80"]
-    destination_addresses = [
-      azurerm_public_ip.firewall_pip.ip_address
-    ]
-    protocols          = ["TCP"]
-    translated_address = var.aks_lb_ip
-    translated_port    = "80"
+    name                  = "NGINXDNAT"
+    source_addresses      = ["*"]
+    destination_ports     = ["80"]
+    destination_addresses = [azurerm_public_ip.firewall_pip.ip_address]
+    protocols             = ["TCP"]
+    translated_address    = var.aks_lb_ip
+    translated_port       = "80"
   }
 }
